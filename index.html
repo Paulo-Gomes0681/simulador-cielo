@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulador de Taxas Cielo - SolarMIX</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; color: #333; }
+    .container { max-width: 1000px; margin: 20px auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    header { background: #FF5722; color: #fff; text-align: center; padding: 20px 0; }
+    header h1 { font-size: 2rem; margin-bottom: 8px; }
+    header p { font-size: 1rem; opacity: 0.9; }
+    .main-content { display: flex; flex-wrap: wrap; }
+    .form-section, .result-section { flex: 1 1 400px; padding: 20px; }
+    .form-section { border-right: 1px solid #eee; }
+    .form-group { margin-bottom: 16px; }
+    label { display: block; margin-bottom: 6px; font-weight: 600; }
+    input, select, button { width: 100%; padding: 10px; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px; }
+    button { background: #FF5722; color: #fff; border: none; cursor: pointer; transition: background 0.3s; }
+    button:hover { background: #e64a19; }
+    .result-card { background: #fafafa; padding: 16px; border-left: 4px solid #FF5722; border-radius: 4px; }
+    .result-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 12px; }
+    .result-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #ddd; }
+    .result-item:last-child { border-bottom: none; }
+    .export-section { padding: 15px; text-align: center; border-top: 1px solid #eee; display: none; }
+    .export-section button { width: auto; margin: 5px; padding: 10px 20px; }
+    @media (max-width: 600px) { .main-content { flex-direction: column; } .form-section { border-right: none; border-bottom: 1px solid #eee; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Simulador de Taxas Cielo</h1>
+      <p>SolarMIX Energias Renováveis</p>
+    </header>
+    <div class="main-content">
+      <div class="form-section">
+        <h2>Dados da Simulação</h2>
+        <div class="form-group">
+          <label for="valorVenda">Valor da Venda (R$)</label>
+          <input type="text" id="valorVenda" placeholder="Ex: 2.000,00" oninput="formatBR(this)">
+        </div>
+        <div class="form-group">
+          <label for="valorLiquidoDesejado">Ou valor líquido desejado (R$)</label>
+          <input type="text" id="valorLiquidoDesejado" placeholder="Ex: 1.600,20" oninput="formatBR(this)">
+        </div>
+        <div class="form-group">
+          <label for="bandeira">Bandeira do Cartão</label>
+          <select id="bandeira">
+            <option value="">Selecione</option>
+            <option value="visa">Visa</option>
+            <option value="mastercard">Mastercard</option>
+            <option value="elo">Elo</option>
+            <option value="amex">American Express</option>
+            <option value="hipercard">Hipercard</option>
+            <option value="diners">Diners</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="tipo">Tipo de Transação</label>
+          <select id="tipo">
+            <option value="">Selecione</option>
+            <option value="debito">Débito</option>
+            <option value="credito_vista">Crédito à Vista</option>
+            <option value="credito_parcelado">Crédito Parcelado</option>
+          </select>
+        </div>
+        <div class="form-group" id="parcelasGroup" style="display:none;">
+          <label for="parcelas">Número de Parcelas</label>
+          <select id="parcelas"><option value="">Selecione</option></select>
+        </div>
+        <button onclick="simular()">Simular Taxas</button>
+      </div>
+      <div class="result-section">
+        <h2>Resultado da Simulação</h2>
+        <div id="resultado"><p style="color:#666;">Informe os dados e clique em Simular Taxas</p></div>
+      </div>
+    </div>
+    <div class="export-section" id="exportSection">
+      <button onclick="exportToPDF()">📄 Gerar PDF</button>
+      <button onclick="shareWhatsApp()">📱 Compartilhar WhatsApp</button>
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    // Taxas Cielo conforme PDF
+    const taxasCielo = {
+      visa:        { debito:1.99, credito_vista:2.39, credito_parcelado:{2:3.99,3:4.19,4:4.39,5:4.59,6:4.79,7:4.99,8:5.19,9:5.39,10:5.59,11:5.79,12:5.99,13:6.19,14:6.39,15:6.59,16:6.79,17:6.99,18:7.19}, max:18 },
+      mastercard:  { debito:1.99, credito_vista:2.39, credito_parcelado:{2:3.99,3:4.19,4:4.39,5:4.59,6:4.79,7:4.99,8:5.19,9:5.39,10:5.59,11:5.79,12:5.99,13:6.19,14:6.39,15:6.59,16:6.79,17:6.99,18:7.19}, max:18 },
+      elo:         { debito:1.99, credito_vista:2.39, credito_parcelado:{2:3.99,3:4.19,4:4.39,5:4.59,6:4.79,7:4.99,8:5.19,9:5.39,10:5.59,11:5.79,12:5.99}, max:12 },
+      amex:        { debito:2.39, credito_vista:2.99, credito_parcelado:{2:4.59,3:4.79,4:4.99,5:5.19,6:5.39,7:5.59,8:5.79,9:5.99,10:6.19,11:6.39,12:6.59}, max:12 },
+      hipercard:   { debito:1.99, credito_vista:2.39, credito_parcelado:{2:3.99,3:4.19,4:4.39,5:4.59,6:4.79,7:4.99,8:5.19,9:5.39,10:5.59,11:5.79,12:5.99}, max:12 },
+      diners:      { debito:2.39, credito_vista:2.99, credito_parcelado:{2:4.59,3:4.79,4:4.99,5:5.19,6:5.39,7:5.59,8:5.79,9:5.99,10:6.19}, max:10 }
+    };
+    // Formatação BR
+    function formatBR(el) { let v = el.value.replace(/\D/g,''); v = (v/100).toFixed(2)+''; el.value = v.replace('.',',').replace(/(\d)(?=(\d{3})+(?!\d))/g,'$1.'); }
+    function parseBR(v) { return parseFloat(v.replace(/\./g,'').replace(',','.'))||0; }
+    function fmt(v) { return new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v); }
+    // Parcelas
+    document.getElementById('tipo').addEventListener('change', e => {
+      const pg = document.getElementById('parcelasGroup');
+      if (e.target.value==='credito_parcelado') { pg.style.display='block'; popParcelas(); } else pg.style.display='none';
+    });
+    document.getElementById('bandeira').addEventListener('change', () => { if (document.getElementById('tipo').value==='credito_parcelado') popParcelas(); });
+    function popParcelas() { const b=document.getElementById('bandeira').value; const sel=document.getElementById('parcelas'); sel.innerHTML='<option value="">Selecione</option>'; for(let i=2;i<=taxasCielo[b].max;i++) sel.insertAdjacentHTML('beforeend', `<option value="${i}">${i}x</option>`); }
+    let lastSim=null;
+    function simular() {
+      const bruto=parseBR(document.getElementById('valorVenda').value);
+      const desejado=parseBR(document.getElementById('valorLiquidoDesejado').value);
+      const bandeira=document.getElementById('bandeira').value;
+      const tipo=document.getElementById('tipo').value;
+      const parcelas= tipo==='credito_parcelado'? parseInt(document.getElementById('parcelas').value):1;
+      if(!bandeira||!tipo||(tipo==='credito_parcelado'&&parcelas<2)||(!bruto&&!desejado)) return alert('Preencha todos os campos corretamente');
+      const tObj = taxasCielo[bandeira];
+      let taxaPct = tipo==='debito'? tObj.debito: tipo==='credito_vista'? tObj.credito_vista: tObj.credito_parcelado[parcelas];
+      let valorBruto, valorLiquido;
+      if(desejado){ valorLiquido=desejado; valorBruto=valorLiquido/(1-(taxaPct/100)); }
+      else { valorBruto=bruto; valorLiquido=valorBruto-(valorBruto*taxaPct/100); }
+      const valorTaxa = valorBruto - valorLiquido;
+      const valorParcela = tipo==='credito_parcelado'? valorBruto/parcelas:valorBruto;
+      const brutoParaReceber = valorLiquido/(1-(taxaPct/100));
+      lastSim = {valorBruto,valorLiquido,valorTaxa, valorParcela, bandeira, tipo, parcelas, taxaPct, brutoParaReceber};
+      mostrar(lastSim);
+      document.getElementById('exportSection').style.display='block';
+    }
+    function mostrar(d){ const r=document.getElementById('resultado'); r.innerHTML=''; const card=document.createElement('div'); card.className='result-card'; const title=document.createElement('div'); title.className='result-title'; title.textContent='Simulação de Taxa'; card.appendChild(title);
+      function add(l,v){ const it=document.createElement('div'); it.className='result-item'; it.innerHTML=`<span>${l}</span><span>${v}</span>`; card.appendChild(it); }
+      add('Valor da Venda:', fmt(d.valorBruto)); add('Bandeira:', bandeiraLabel(d.bandeira)); add('Tipo:', tipoLabel(d.tipo,d.parcelas)); add('Taxa:', d.taxaPct+'%'); add('Valor da Taxa:', fmt(d.valorTaxa)); add('Valor Líquido:', fmt(d.valorLiquido)); if(d.tipo==='credito_parcelado') add('Valor da Parcela:', fmt(d.valorParcela)); add('Para receber o valor líquido, venda por:', `<strong style="color:#007bff">${fmt(d.brutoParaReceber)}</strong>`); r.appendChild(card); }
+    function exportToPDF(){ if(!lastSim) return alert('Simule primeiro'); const{jsPDF}=window.jspdf; const doc=new jsPDF(); let y=20; doc.setFontSize(16); doc.text('Simulação de Taxas Cielo',20,y); y+=10; doc.setFontSize(12); doc.text(`Valor da Venda: ${fmt(lastSim.valorBruto)}`,20,y); y+=10; doc.text(`Bandeira: ${bandeiraLabel(lastSim.bandeira)}`,20,y); y+=10; doc.text(`Tipo: ${tipoLabel(lastSim.tipo,lastSim.parcelas)}`,20,y); y+=10; doc.text(`Taxa: ${lastSim.taxaPct}%`,20,y); y+=10; doc.text(`Valor da Taxa: ${fmt(lastSim.valorTaxa)}`,20,y); y+=10; doc.text(`Valor Líquido: ${fmt(lastSim.valorLiquido)}`,20,y); y+=10; if(lastSim.tipo==='credito_parcelado'){ doc.text(`Valor da Parcela: ${fmt(lastSim.valorParcela)}`,20,y); y+=10; } doc.text(`Para receber o valor líquido, venda por: ${fmt(lastSim.brutoParaReceber)}`,20,y); doc.save('simulacao-taxas-cielo.pdf'); }
+    function shareWhatsApp(){ if(!lastSim) return alert('Simule primeiro'); const linhas=[]; linhas.push('🏦 Simulação de Taxa'); linhas.push(`💰 Valor da Venda:\n${fmt(lastSim.valorBruto)}`); linhas.push(`💳 Bandeira:\n${bandeiraLabel(lastSim.bandeira)}`); linhas.push(`📊 Tipo:\n${tipoLabel(lastSim.tipo,lastSim.parcelas)}`); linhas.push(`📈 Taxa:\n${lastSim.taxaPct}%`); linhas.push(`💸 Valor da Taxa:\n${fmt(lastSim.valorTaxa)}`); linhas.push(`✅ Valor Líquido:\n${fmt(lastSim.valorLiquido)}`); if(lastSim.tipo==='credito_parcelado') linhas.push(`📅 Valor da Parcela:\n${fmt(lastSim.valorParcela)}`); linhas.push(`🔄 Para receber o valor líquido, venda por:\n${fmt(lastSim.brutoParaReceber)}`); const url=`https://wa.me/?text=${encodeURIComponent(linhas.join('\n'))}`; window.open(url,'_blank'); }
+    function bandeiraLabel(b){ return b.charAt(0).toUpperCase()+b.slice(1); } function tipoLabel(t,p){ if(t==='debito') return 'Débito'; if(t==='credito_vista') return 'Crédito à Vista'; return `Crédito ${p}x`; }
+  </script>
+</body>
+</html>
