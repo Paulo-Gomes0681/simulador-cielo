@@ -53,4 +53,4 @@ Este projeto é de uso interno da **SolarMIX Energias Renováveis**. Modificaç�
 Desenvolvido com 💡 por Paulo Gomes
 
 
-🔗 Acesse o simulador: [https://paulo-gomes0681.github.io/simulador-cielo/]
+🔗 Acesse o simulador: https://paulo-gomes0681.github.io/simulador-cielo
