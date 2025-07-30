@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Taxas Cielo - SolarMIX</title>
+    
+    <!-- Favicon usando o símbolo "S" da SolarMIX -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjQ0Q0NjE1Ii8+CjxwYXRoIGQ9Ik0yMCAzMEM4IDMwIDggNTAgMjAgNTBINjBDNzIgNTAgNzIgNzAgNjAgNzBINDBDMjggNzAgMjggOTAgNDAgOTBIODBDOTIgOTAgOTIgNzAgODAgNzBINjBDNDggNzAgNDggNTAgNjAgNTBIODBDOTIgNTAgOTIgMzAgODAiLz4KPC9zdmc+" />
+    
+    <!-- Fallback para browsers antigos -->
+    <link rel="shortcut icon" type="image/x-icon" href="data:image/x-icon;base64,AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADNRhUAzUYVAM1GFQDNRRUA0EcVANFIFQDRSBUA0UgVANFIFQDRSBUA0UgVANFIFQDQRxUA0UgVANFIFQDRSBUAzUYVAP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AM1GFQDNRhUA////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8AzUYVAM1GFQD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wDNRhUAzUYVAP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AM1GFQDNRRUA////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8AzUYVAM1GFQD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wDNRhUAzUYVAP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AM1GFQDNRhUA////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8AzUYVAM1GFQD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wDNRhUAzUYVAP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AM1GFQDNRhUA////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8AzUYVAM1GFQD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wDNRhUAzUYVAP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AM1GFQDNRhUAzUYVAM1GFQDNRRUA0EcVANFIFQDRSBUA0UgVANFIFQDRSBUA0UgVANFIFQDQRxUA0UgVANFIFQDRSBUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #FF5722 0%, #FF8A50 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .company {
+            font-size: 1rem;
+            color: #FF5722;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #666;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .form-section, .result-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #FF5722;
+            box-shadow: 0 0 0 3px rgba(255, 87, 34, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #FF5722 0%, #FF8A50 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 87, 34, 0.4);
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe8e6 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #FF5722;
+        }
+
+        .result-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #e1e5e9;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #FF5722;
+        }
+
+        .installment-table {
+            margin-top: 20px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .table th, .table td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #e1e5e9;
+        }
+
+        .table th {
+            background: #FF5722;
+            color: white;
+            font-weight: 600;
+        }
+
+        .table tr:hover {
+            background: #fff5f5;
+        }
+
+        .export-section {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .btn-export {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            margin: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .title {
+                font-size: 2rem;
+            }
+            
+            .logos {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .logo {
+                height: 50px;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">Simulador de Taxas Cielo</h1>
+            <p class="subtitle">Simule as taxas e parcelas para seus clientes</p>
+            <p class="company">SolarMIX Energias Renováveis</p>
+        </div>
+
+        <div class="main-content">
+            <div class="form-section">
+                <h2>Dados da Simulação</h2>
+                <div class="form-group">
+                    <label for="valor">Valor da Venda (R$)</label>
+                    <input type="text" id="valor" placeholder="Ex: 1.000,00" oninput="formatarValorInput(this)">
+                </div>
+                
+                <div class="form-group">
+                    <label for="bandeira">Bandeira do Cartão</label>
+                    <select id="bandeira">
+                        <option value="">Selecione a bandeira</option>
+                        <option value="visa">Visa</option>
+                        <option value="mastercard">Mastercard</option>
+                        <option value="elo">Elo</option>
+                        <option value="amex">American Express</option>
+                        <option value="hipercard">Hipercard</option>
+                        <option value="diners">Diners</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="tipo">Tipo de Transação</label>
+                    <select id="tipo">
+                        <option value="">Selecione o tipo</option>
+                        <option value="debito">Débito</option>
+                        <option value="credito_vista">Crédito à Vista</option>
+                        <option value="credito_parcelado">Crédito Parcelado</option>
+                    </select>
+                </div>
+                
+                <div class="form-group hidden" id="parcelasGroup">
+                    <label for="parcelas">Número de Parcelas</label>
+                    <select id="parcelas">
+                        <option value="">Selecione as parcelas</option>
+                    </select>
+                </div>
+                
+                <button class="btn" onclick="simular()">Simular Taxas</button>
+            </div>
+
+            <div class="result-section">
+                <h2>Resultado da Simulação</h2>
+                <div id="resultado" style="text-align: center; color: #666; padding: 40px;">
+                    Preencha os dados ao lado para ver a simulação
+                </div>
+            </div>
+        </div>
+
+        <div class="export-section" id="exportSection" style="display: none;">
+            <h3>Compartilhar Simulação</h3>
+            <button class="btn btn-export" onclick="exportToPDF()">📄 Gerar PDF</button>
+            <button class="btn btn-export" onclick="shareWhatsApp()">📱 Compartilhar WhatsApp</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        // Dados das taxas Cielo atualizadas (baseado nas informações pesquisadas)
+        const taxasCielo = {
+            visa: {
+                debito: 1.99,
+                credito_vista: 2.39,
+                credito_parcelado: {
+                    2: 3.99, 3: 4.19, 4: 4.39, 5: 4.59, 6: 4.79,
+                    7: 4.99, 8: 5.19, 9: 5.39, 10: 5.59, 11: 5.79, 12: 5.99,
+                    13: 6.19, 14: 6.39, 15: 6.59, 16: 6.79, 17: 6.99, 18: 7.19
+                },
+                max_parcelas: 18
+            },
+            mastercard: {
+                debito: 1.99,
+                credito_vista: 2.39,
+                credito_parcelado: {
+                    2: 3.99, 3: 4.19, 4: 4.39, 5: 4.59, 6: 4.79,
+                    7: 4.99, 8: 5.19, 9: 5.39, 10: 5.59, 11: 5.79, 12: 5.99,
+                    13: 6.19, 14: 6.39, 15: 6.59, 16: 6.79, 17: 6.99, 18: 7.19
+                },
+                max_parcelas: 18
+            },
+            elo: {
+                debito: 1.99,
+                credito_vista: 2.39,
+                credito_parcelado: {
+                    2: 3.99, 3: 4.19, 4: 4.39, 5: 4.59, 6: 4.79,
+                    7: 4.99, 8: 5.19, 9: 5.39, 10: 5.59, 11: 5.79, 12: 5.99,
+                    13: 6.19, 14: 6.39, 15: 6.59, 16: 6.79, 17: 6.99, 18: 7.19
+                },
+                max_parcelas: 18
+            },
+            amex: {
+                debito: 2.39,
+                credito_vista: 2.99,
+                credito_parcelado: {
+                    2: 4.59, 3: 4.79, 4: 4.99, 5: 5.19, 6: 5.39,
+                    7: 5.59, 8: 5.79, 9: 5.99, 10: 6.19, 11: 6.39, 12: 6.59
+                },
+                max_parcelas: 12
+            },
+            hipercard: {
+                debito: 1.99,
+                credito_vista: 2.39,
+                credito_parcelado: {
+                    2: 3.99, 3: 4.19, 4: 4.39, 5: 4.59, 6: 4.79,
+                    7: 4.99, 8: 5.19, 9: 5.39, 10: 5.59, 11: 5.79, 12: 5.99
+                },
+                max_parcelas: 12
+            },
+            diners: {
+                debito: 2.39,
+                credito_vista: 2.99,
+                credito_parcelado: {
+                    2: 4.59, 3: 4.79, 4: 4.99, 5: 5.19, 6: 5.39,
+                    7: 5.59, 8: 5.79, 9: 5.99, 10: 6.19
+                },
+                max_parcelas: 10
+            }
+        };
+
+        // Função para formatar entrada de valor monetário
+        function formatarValorInput(input) {
+            let valor = input.value.replace(/\D/g, '');
+            valor = (valor / 100).toFixed(2) + '';
+            valor = valor.replace(".", ",");
+            valor = valor.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+            input.value = valor;
+        }
+
+        // Função para converter valor formatado para número
+        function parseValorBR(valor) {
+            if (!valor) return 0;
+            return parseFloat(valor.replace(/\./g, '').replace(',', '.'));
+        }
+
+        // Função para formatar valor em reais
+        function formatarMoeda(valor) {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(valor);
+        }
+
+        let simulacaoAtual = null;
+
+        document.getElementById('tipo').addEventListener('change', function() {
+            const tipo = this.value;
+            const bandeira = document.getElementById('bandeira').value;
+            const parcelasGroup = document.getElementById('parcelasGroup');
+            const parcelasSelect = document.getElementById('parcelas');
+            
+            if (tipo === 'credito_parcelado' && bandeira) {
+                parcelasGroup.classList.remove('hidden');
+                atualizarParcelas();
+            } else {
+                parcelasGroup.classList.add('hidden');
+                parcelasSelect.innerHTML = '<option value="">Selecione as parcelas</option>';
+            }
+        });
+
+        document.getElementById('bandeira').addEventListener('change', function() {
+            const tipo = document.getElementById('tipo').value;
+            if (tipo === 'credito_parcelado') {
+                atualizarParcelas();
+            }
+        });
+
+        function atualizarParcelas() {
+            const bandeira = document.getElementById('bandeira').value;
+            const parcelasSelect = document.getElementById('parcelas');
+            
+            if (!bandeira || !taxasCielo[bandeira]) return;
+            
+            const maxParcelas = taxasCielo[bandeira].max_parcelas;
+            parcelasSelect.innerHTML = '<option value="">Selecione as parcelas</option>';
+            
+            for (let i = 2; i <= maxParcelas; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `${i}x`;
+                parcelasSelect.appendChild(option);
+            }
+        }
+
+        function simular() {
+            const valorInput = document.getElementById('valor').value;
+            const valor = parseValorBR(valorInput);
+            const bandeira = document.getElementById('bandeira').value;
+            const tipo = document.getElementById('tipo').value;
+            const parcelas = parseInt(document.getElementById('parcelas').value) || 1;
+            
+            if (!valor || valor <= 0 || !bandeira || !tipo) {
+                alert('Por favor, preencha todos os campos obrigatórios com valores válidos.');
+                return;
+            }
+            
+            if (tipo === 'credito_parcelado' && (!parcelas || parcelas < 2)) {
+                alert('Por favor, selecione o número de parcelas (mínimo 2x).');
+                return;
+            }
+            
+            const dados = taxasCielo[bandeira];
+            let taxa = 0;
+            
+            if (tipo === 'debito') {
+                taxa = dados.debito;
+            } else if (tipo === 'credito_vista') {
+                taxa = dados.credito_vista;
+            } else if (tipo === 'credito_parcelado') {
+                taxa = dados.credito_parcelado[parcelas];
+                if (!taxa) {
+                    alert(`Esta bandeira não aceita ${parcelas} parcelas. Máximo: ${dados.max_parcelas}x`);
+                    return;
+                }
+            }
+            
+            const valorTaxa = (valor * taxa) / 100;
+            const valorLiquido = valor - valorTaxa;
+            const valorParcela = parcelas > 1 ? valor / parcelas : valor;
+            
+            simulacaoAtual = {
+                valor,
+                bandeira,
+                tipo,
+                parcelas,
+                taxa,
+                valorTaxa,
+                valorLiquido,
+                valorParcela
+            };
+            
+            mostrarResultado();
+        }
+
+        function mostrarResultado() {
+            const resultado = document.getElementById('resultado');
+            const exportSection = document.getElementById('exportSection');
+            
+            const tipoTexto = {
+                'debito': 'Débito',
+                'credito_vista': 'Crédito à Vista',
+                'credito_parcelado': `Crédito ${simulacaoAtual.parcelas}x`
+            };
+            
+            const bandeiraTexto = {
+                'visa': 'Visa',
+                'mastercard': 'Mastercard',
+                'elo': 'Elo',
+                'amex': 'American Express',
+                'hipercard': 'Hipercard',
+                'diners': 'Diners'
+            };
+            
+            resultado.innerHTML = `
+                <div class="result-card">
+                    <div class="result-title">Simulação de Taxa</div>
+                    <div class="result-item">
+                        <span>Valor da Venda:</span>
+                        <span>R$ ${simulacaoAtual.valor.toFixed(2).replace('.', ',')}</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Bandeira:</span>
+                        <span>${bandeiraTexto[simulacaoAtual.bandeira]}</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Tipo:</span>
+                        <span>${tipoTexto[simulacaoAtual.tipo]}</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Taxa:</span>
+                        <span>${simulacaoAtual.taxa}%</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Valor da Taxa:</span>
+                        <span>R$ ${simulacaoAtual.valorTaxa.toFixed(2).replace('.', ',')}</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Valor Líquido:</span>
+                        <span>R$ ${simulacaoAtual.valorLiquido.toFixed(2).replace('.', ',')}</span>
+                    </div>
+                    ${simulacaoAtual.parcelas > 1 ? `
+                    <div class="result-item">
+                        <span>Valor da Parcela:</span>
+                        <span>R$ ${simulacaoAtual.valorParcela.toFixed(2).replace('.', ',')}</span>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            exportSection.style.display = 'block';
+        }
+
+        function exportToPDF() {
+            if (!simulacaoAtual) return;
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Header
+            doc.setFontSize(20);
+            doc.text('SIMULAÇÃO DE TAXAS CIELO', 20, 30);
+            
+            doc.setFontSize(12);
+            doc.text('SolarMIX Energias Renováveis', 20, 45);
+            
+            // Dados da simulação
+            doc.setFontSize(14);
+            doc.text('Dados da Simulação:', 20, 65);
+            
+            doc.setFontSize(11);
+            const dados = [
+                `Valor da Venda: ${formatarMoeda(simulacaoAtual.valor)}`,
+                `Bandeira: ${simulacaoAtual.bandeira.toUpperCase()}`,
+                `Tipo: ${simulacaoAtual.tipo.replace('_', ' ').toUpperCase()}`,
+                `Taxa: ${simulacaoAtual.taxa}%`,
+                `Valor da Taxa: ${formatarMoeda(simulacaoAtual.valorTaxa)}`,
+                `Valor Líquido: ${formatarMoeda(simulacaoAtual.valorLiquido)}`
+            ];
+            
+            if (simulacaoAtual.parcelas > 1) {
+                dados.push(`Parcelas: ${simulacaoAtual.parcelas}x de ${formatarMoeda(simulacaoAtual.valorParcela)}`);
+            }
+            
+            dados.forEach((item, index) => {
+                doc.text(item, 20, 80 + (index * 10));
+            });
+            
+            // Footer
+            doc.setFontSize(10);
+            doc.text('Simulação gerada em: ' + new Date().toLocaleString('pt-BR'), 20, 250);
+            doc.text('SolarMIX Energias Renováveis', 20, 260);
+            
+            doc.save('simulacao-taxas-cielo.pdf');
+        }
+
+        function shareWhatsApp() {
+            if (!simulacaoAtual) return;
+            
+            const mensagem = `🏦 *SIMULAÇÃO DE TAXAS CIELO*\n\n` +
+                `💰 Valor da Venda: ${formatarMoeda(simulacaoAtual.valor)}\n` +
+                `💳 Bandeira: ${simulacaoAtual.bandeira.toUpperCase()}\n` +
+                `📊 Tipo: ${simulacaoAtual.tipo.replace('_', ' ').toUpperCase()}\n` +
+                `📈 Taxa: ${simulacaoAtual.taxa}%\n` +
+                `💸 Valor da Taxa: ${formatarMoeda(simulacaoAtual.valorTaxa)}\n` +
+                `✅ Valor Líquido: ${formatarMoeda(simulacaoAtual.valorLiquido)}\n` +
+                (simulacaoAtual.parcelas > 1 ? `📅 Parcelas: ${simulacaoAtual.parcelas}x de ${formatarMoeda(simulacaoAtual.valorParcela)}\n` : '') +
+                `\n🔋 *SolarMIX Energias Renováveis*\n` +
+                `Simulação gerada em ${new Date().toLocaleString('pt-BR')}`;
+            
+            const url = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
+            window.open(url, '_blank');
+        }
+    </script>
+</body>
+</html>
